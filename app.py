@@ -3,6 +3,8 @@ import string
 import json
 from os import getenv
 from flask import Flask, render_template, request, redirect
+from flask_httpauth import HTTPBasicAuth
+from werkzeug.security import generate_password_hash, check_password_hash
 import requests
 import redis
 from json2table import convert
@@ -12,6 +14,10 @@ from forms.ui import Ui, Admin
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "SECRET303"
 app.config['JSON_SORT_KEYS'] = False
+auth = HTTPBasicAuth()
+
+users = {"admin": generate_password_hash(getenv("ADMIN_PASSWORD"))}
+
 sess = requests.Session()
 sess.headers.update({'X-API-Key': getenv('API_TOKEN')})
 
@@ -46,7 +52,13 @@ def getInvitationData(redis):
         returnData.append(emptyDict)
     return returnData
 
+@auth.verify_password
+def verify_password(username, password):
+    if username in users and check_password_hash(users.get(username), password):
+        return username
+
 @app.route('/admin', methods=['GET', 'POST'])
+@auth.login_required
 def getAdmin():
     form = Admin()
     form.token.data = getRandomString(int(getenv('REGISTER_DEFAULT_TOKEN_LENGTH')))

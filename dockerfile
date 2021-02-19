@@ -15,7 +15,8 @@ ENV MAILCOW_HOST=https://mail.303v.cf \
     REGISTER_QUOTA=1024 \
     REGISTER_DEFAULT_TOKEN_LENGTH=64 \
     REDIS_HOST=redis \
-    REDIS_PORT=6379
+    REDIS_PORT=6379 \
+    ADMIN_PASSWORD=admin
 
 COPY app.py .
 COPY forms/ ./forms
